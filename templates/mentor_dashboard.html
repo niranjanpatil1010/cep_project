@@ -143,9 +143,22 @@ button:disabled { cursor: not-allowed; opacity: 0.7; }
         window.location.href = '/login';
     }
 
+    const getVerifiedBadge = (status) => {
+        if (status === 'approved') {
+            return `<span class="verified-badge" style="background: #d1fae5; color: #065f46; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.3rem;"><i class="fas fa-check-circle" style="color: #10b981;"></i> Verified Mentor</span>`;
+        }
+        return `<span class="badge badge-pending" style="margin-top: 0.5rem; background: #fef3c7; color: #b45309; border-color: #fde68a;">Pending Verification</span>`;
+    };
+
     document.getElementById('mentor-name-display').innerText = user.name;
     document.getElementById('mentor-email-display').innerText = user.email;
     document.getElementById('mentor-avatar').innerText = user.name.charAt(0).toUpperCase();
+
+    // Add badge under email
+    const profileDiv = document.querySelector('.sidebar-profile');
+    const badgeSpan = document.createElement('div');
+    badgeSpan.innerHTML = getVerifiedBadge(user.status);
+    profileDiv.appendChild(badgeSpan);
 
     let posts = [];
 

@@ -10,7 +10,11 @@ student_bp = Blueprint('student', __name__)
 def get_ngos():
     db = get_db()
     cur = db.cursor()
-    cur.execute("SELECT * FROM ngos")
+    cur.execute("""
+        SELECT n.*, u.status 
+        FROM ngos n 
+        JOIN users u ON n.user_id = u.id
+    """)
     return jsonify([dict(row) for row in cur.fetchall()])
 
 @student_bp.route('/scholarships', methods=['GET'])
@@ -19,7 +23,12 @@ def get_ngos():
 def get_scholarships():
     db = get_db()
     cur = db.cursor()
-    cur.execute("SELECT * FROM scholarships")
+    cur.execute("""
+        SELECT s.*, n.name as ngoName, u.status as ngoStatus
+        FROM scholarships s
+        JOIN ngos n ON s.ngo_id = n.id
+        JOIN users u ON n.user_id = u.id
+    """)
     return jsonify([dict(row) for row in cur.fetchall()])
 
 @student_bp.route('/scholarships/<int:scholarship_id>/apply', methods=['POST'])
@@ -80,7 +89,12 @@ def cancel_application(app_id):
 def get_events():
     db = get_db()
     cur = db.cursor()
-    cur.execute("SELECT * FROM events")
+    cur.execute("""
+        SELECT e.*, n.name as ngoName, u.status as ngoStatus
+        FROM events e
+        JOIN ngos n ON e.ngo_id = n.id
+        JOIN users u ON n.user_id = u.id
+    """)
     return jsonify([dict(row) for row in cur.fetchall()])
 
 @student_bp.route('/events/<int:event_id>/register', methods=['POST'])
@@ -297,7 +311,13 @@ def my_borrows():
 def get_mentor_posts():
     db = get_db()
     cur = db.cursor()
-    cur.execute("SELECT * FROM mentor_posts")
+    cur.execute("""
+        SELECT mp.*, u.status as mentorStatus, m.full_name as mentorName
+        FROM mentor_posts mp
+        JOIN users u ON mp.mentor_id = u.id
+        LEFT JOIN mentors m ON u.id = m.user_id
+        WHERE u.status = 'approved'
+    """)
     posts = []
     for row in cur.fetchall():
         d = dict(row)

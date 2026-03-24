@@ -3,10 +3,7 @@ const API_BASE_URL = './api';
 const api = {
     async request(endpoint, method = 'GET', data = null) {
         const url = `${API_BASE_URL}${endpoint}`;
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-
+        const headers = {};
         const token = localStorage.getItem('token');
         if (token) {
             headers['Authorization'] = `Bearer ${token}`; 
@@ -17,8 +14,12 @@ const api = {
             headers
         };
 
-        if (data) {
+        if (data && !(data instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
             options.body = JSON.stringify(data);
+        } else if (data instanceof FormData) {
+            // Browser will set Content-Type with boundary for FormData
+            options.body = data;
         }
 
         try {

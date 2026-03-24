@@ -400,6 +400,13 @@
         const norm = status.toLowerCase();
         return `<span class="badge badge-${norm}">${status}</span>`;
     }
+
+    function getVerifiedBadge(status) {
+        if (status === 'approved') {
+            return `<span class="verified-badge"><i class="fas fa-check-circle"></i> Verified</span>`;
+        }
+        return '';
+    }
     
     function formatDate(dateStr) {
         if(!dateStr) return '';
@@ -420,7 +427,7 @@
             return `
             <div class="card shadow-md">
                 <div class="flex-between align-center mb-2">
-                    <h3 class="m-0 text-primary">${s.title}</h3>
+                    <h3 class="m-0 text-primary">${s.title} ${getVerifiedBadge(s.ngoStatus)}</h3>
                     ${applied ? getStatusBadge(applied.status) : ''}
                 </div>
                 <p class="text-sm text-gray mb-3">${s.description.substring(0, 100)}...</p>
@@ -460,7 +467,7 @@
             return `
             <div class="card shadow-md">
                 <div class="flex-between align-center mb-2">
-                    <h3 class="m-0 text-primary">${e.title}</h3>
+                    <h3 class="m-0 text-primary">${e.title} ${getVerifiedBadge(e.ngoStatus)}</h3>
                     ${reg ? '<span class="badge badge-accepted">Registered</span>' : ''}
                 </div>
                 <p class="text-sm text-gray mb-3">${e.description}</p>
@@ -541,7 +548,7 @@
     function renderMentors(mentors) {
         document.getElementById('mentors-list').innerHTML = mentors.map(m => `
             <div class="card shadow-sm border-l-4" style="border-left-color: #3b82f6;">
-                <h3 class="m-0 text-gray-900">${m.title}</h3>
+                <h3 class="m-0 text-gray-900">${m.title} ${getVerifiedBadge(m.mentorStatus)}</h3>
                 <p class="text-sm text-gray mt-2 mb-3 white-space-pre">${m.content}</p>
                 <div class="flex gap-2">
                     ${m.tags.map(t => t ? `<span class="badge badge-returned">${t}</span>` : '').join('')}

@@ -1,7 +1,8 @@
-import sqlite3
-from flask import request, jsonify
+from flask import request, jsonify, current_app
+import jwt
 from functools import wraps
 import db
+import os
 
 def auth_middleware():
     def decorator(f):
@@ -13,10 +14,13 @@ def auth_middleware():
             
             token = auth_header.split(' ')[1]
             try:
-                # Our mock token format: fake-jwt-token-{id}
-                user_id = int(token.split('-')[-1])
-            except:
-                return jsonify({'message': 'Invalid token format'}), 401
+                secret_key = current_app.config.get('SECRET_KEY', 'super-secret-key')
+                payload = jwt.decode(token, secret_key, algorithms=['HS256'])
+                user_id = payload['user_id']
+            except jwt.ExpiredSignatureError:
+                return jsonify({'message': 'Token expired'}), 401
+            except jwt.InvalidTokenError:
+                return jsonify({'message': 'Invalid token'}), 401
                 
             conn = db.get_db()
             cur = conn.cursor()
@@ -25,8 +29,17 @@ def auth_middleware():
             
             if not user:
                 return jsonify({'message': 'User not found'}), 401
-                
-            request.user = dict(user)
+            
+            user_data = dict(user)
+            # Check if user is approved and verified
+            if user_data['status'] == 'pending' and user_data['role'] != 'admin':
+                return jsonify({'message': 'Your account is under verification'}), 403
+            if user_data['status'] == 'rejected':
+                return jsonify({'message': 'Your account was rejected. Contact admin'}), 403
+            if not user_data['is_verified']:
+                return jsonify({'message': 'Please verify your email first'}), 403
+
+            request.user = user_data
             return f(*args, **kwargs)
         return decorated_function
     return decorator

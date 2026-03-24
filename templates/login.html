@@ -44,13 +44,23 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         localStorage.setItem('user', JSON.stringify(res.user));
         
         // Redirect based on role
-        if (res.user.role === 'student') window.location.href = '/student-dashboard';
+        if (res.user.role === 'admin') window.location.href = '/admin-dashboard';
+        else if (res.user.role === 'student') window.location.href = '/student-dashboard';
         else if (res.user.role === 'ngo') window.location.href = '/ngo-dashboard';
         else if (res.user.role === 'mentor') window.location.href = '/mentor-dashboard';
         else window.location.href = '/';
         
     } catch (err) {
-        errorMsg.innerText = err.message || 'Login failed. Please check credentials.';
+        let msg = err.message || 'Login failed. Please check credentials.';
+        if (err.message && err.message.includes('under verification')) {
+            errorMsg.textContent = err.message;
+        } else {
+            errorMsg.textContent = err.message || 'Login failed. Please check your credentials.';
+        }
+        if (msg.includes('rejected')) { // This line was part of the original and seems to be kept.
+            msg = 'Your account was rejected. Please contact the administrator.';
+        }
+        errorMsg.innerText = msg;
         errorMsg.classList.remove('hidden');
     } finally {
         btn.innerText = oldText;

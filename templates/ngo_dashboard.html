@@ -303,9 +303,22 @@ button { cursor: pointer; }
         window.location.href = '/login';
     }
 
+    const getVerifiedBadge = (status) => {
+        if (status === 'approved') {
+            return `<span class="verified-badge" style="background: #d1fae5; color: #065f46; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.3rem;"><i class="fas fa-check-circle" style="color: #10b981;"></i> Verified NGO</span>`;
+        }
+        return `<span class="badge badge-pending" style="margin-top: 0.5rem;">Pending Verification</span>`;
+    };
+
     document.getElementById('ngo-name-display').innerText = user.orgName || user.name;
     document.getElementById('ngo-email-display').innerText = user.email;
     document.getElementById('ngo-avatar').innerText = (user.orgName || user.name).charAt(0).toUpperCase();
+    
+    // Add badge under email
+    const profileDiv = document.querySelector('.sidebar-profile');
+    const badgeSpan = document.createElement('div');
+    badgeSpan.innerHTML = getVerifiedBadge(user.status);
+    profileDiv.appendChild(badgeSpan);
 
     // App State
     let data = {

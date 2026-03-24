@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - EduConnect</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="logo">EduConnect Admin</div>
+            <nav>
+                <a href="#" class="active"><i class="fas fa-users"></i> User Management</a>
+                <a href="#" onclick="location.reload()"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header>
+                <h1>User Verification & Management</h1>
+                <div class="filters">
+                    <select id="roleFilter">
+                        <option value="">All Roles</option>
+                        <option value="student">Student</option>
+                        <option value="ngo">NGO</option>
+                        <option value="mentor">Mentor</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </header>
+
+            <section class="user-list">
+                <table id="userTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- Data will be loaded here via JS -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="userDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user'));
+
+            if (!token || user.role !== 'admin') {
+                window.location.href = '/login';
+                return;
+            }
+
+            const loadUsers = async () => {
+                const role = document.getElementById('roleFilter').value;
+                const status = document.getElementById('statusFilter').value;
+                
+                let url = `/api/admin/users?`;
+                if (role) url += `role=${role}&`;
+                if (status) url += `status=${status}`;
+
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const users = await response.json();
+                
+                const tableBody = document.getElementById('userTableBody');
+                tableBody.innerHTML = '';
+
+                users.forEach(u => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${u.name}</td>
+                        <td>${u.email}</td>
+                        <td><span class="badge ${u.role}">${u.role.toUpperCase()}</span></td>
+                        <td><span class="status-${u.status}">${u.status}</span></td>
+                        <td>
+                            <button onclick="viewDetails(${u.id})" class="btn-small">View</button>
+                            ${u.status === 'pending' ? `
+                                <button onclick="updateStatus(${u.id}, 'approved')" class="btn-approve">Approve</button>
+                                <button onclick="updateStatus(${u.id}, 'rejected')" class="btn-reject">Reject</button>
+                            ` : ''}
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            };
+
+            window.updateStatus = async (userId, newStatus) => {
+                const response = await fetch(`/api/admin/users/${userId}/status`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (response.ok) {
+                    loadUsers();
+                } else {
+                    alert('Failed to update status');
+                }
+            };
+
+            window.viewDetails = async (userId) => {
+                const response = await fetch(`/api/admin/users/${userId}/details`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const details = await response.json();
+                
+                let content = `
+                    <h2>User Details: ${details.name}</h2>
+                    <p><strong>Email:</strong> ${details.email}</p>
+                    <p><strong>Role:</strong> ${details.role}</p>
+                    <p><strong>Verified:</strong> ${details.is_verified ? 'Yes' : 'No'}</p>
+                `;
+
+                if (details.role === 'ngo' && details.ngo_details) {
+                    content += `
+                        <h3>NGO Information</h3>
+                        <p><strong>Org Name:</strong> ${details.ngo_details.name}</p>
+                        <p><strong>Reg No:</strong> ${details.ngo_details.registration_number}</p>
+                        <p><strong>Address:</strong> ${details.ngo_details.address}</p>
+                        <p><strong>Website:</strong> <a href="${details.ngo_details.website}" target="_blank">${details.ngo_details.website}</a></p>
+                        ${details.ngo_details.certificate_path ? `
+                            <p><strong>Verification Document:</strong> <a href="/${details.ngo_details.certificate_path}" target="_blank" class="btn-small" style="text-decoration:none; display:inline-block; margin-top:5px;">View Certificate</a></p>
+                        ` : '<p>No certificate uploaded</p>'}
+                    `;
+                } else if (details.role === 'mentor' && details.mentor_details) {
+                    content += `
+                        <h3>Mentor Information</h3>
+                        <p><strong>Full Name:</strong> ${details.mentor_details.full_name}</p>
+                        <p><strong>LinkedIn:</strong> <a href="${details.mentor_details.linkedin_profile}" target="_blank">${details.mentor_details.linkedin_profile}</a></p>
+                        <p><strong>Organization:</strong> ${details.mentor_details.organization_college}</p>
+                        <p><strong>Experience:</strong> ${details.mentor_details.experience_years} years</p>
+                        ${details.mentor_details.resume_path ? `
+                            <p><strong>Verification Document:</strong> <a href="/${details.mentor_details.resume_path}" target="_blank" class="btn-small" style="text-decoration:none; display:inline-block; margin-top:5px;">View Resume</a></p>
+                        ` : '<p>No resume uploaded</p>'}
+                    `;
+                }
+
+                document.getElementById('userDetails').innerHTML = content;
+                document.getElementById('userModal').style.display = 'block';
+            };
+
+            document.querySelector('.close').onclick = () => {
+                document.getElementById('userModal').style.display = 'none';
+            };
+
+            document.getElementById('roleFilter').onchange = loadUsers;
+            document.getElementById('statusFilter').onchange = loadUsers;
+            document.getElementById('logoutBtn').onclick = () => {
+                localStorage.clear();
+                window.location.href = '/login';
+            };
+
+            loadUsers();
+        });
+    </script>
+</body>
+</html>

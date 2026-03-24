@@ -4,15 +4,34 @@ CREATE TABLE IF NOT EXISTS users (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL -- 'student', 'ngo', 'mentor'
+    role TEXT NOT NULL, -- 'student', 'ngo', 'mentor', 'admin'
+    status TEXT DEFAULT 'pending', -- 'pending', 'approved', 'rejected'
+    is_verified BOOLEAN DEFAULT 0,
+    verification_token TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS ngos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     name TEXT NOT NULL,
+    registration_number TEXT,
+    address TEXT,
+    website TEXT,
     description TEXT,
     location TEXT,
+    certificate_path TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS mentors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    full_name TEXT NOT NULL,
+    linkedin_profile TEXT,
+    resume_path TEXT,
+    organization_college TEXT,
+    experience_years INTEGER,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

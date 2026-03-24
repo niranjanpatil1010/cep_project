@@ -1,39 +1,80 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="form-container mt-4">
+<div class="form-container mt-4" style="max-width: 600px;">
     <h2 class="text-center mb-4">Create an Account</h2>
     
     <div id="error-msg" class="hidden" style="color: #EF4444; background: #FEE2E2; padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem;"></div>
-    <div id="success-msg" class="hidden" style="color: #10B981; background: #D1FAE5; padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem;">Registration successful! Redirecting to login...</div>
+    <div id="success-msg" class="hidden" style="color: #10B981; background: #D1FAE5; padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem;">Registration successful! Please verify your email.</div>
 
-    <form id="register-form">
-        <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" class="form-control" placeholder="John Doe" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email address</label>
-            <input type="email" id="email" class="form-control" placeholder="john@example.com" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" class="form-control" placeholder="Create a password" required>
-        </div>
+    <form id="register-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="role">Account Type</label>
-            <select id="role" class="form-control" required>
+            <select id="role" name="role" class="form-control" required>
                 <option value="student">Student</option>
                 <option value="ngo">NGO</option>
                 <option value="mentor">Mentor</option>
             </select>
+        </div>
+
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="John Doe" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="john@example.com" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Min 8 chars, Upper, Lower, Num, Special" required>
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm your password" required>
         </div>
         
         <!-- NGO specific fields -->
         <div id="ngo-fields" class="hidden">
             <div class="form-group">
                 <label for="orgName">Organization Name</label>
-                <input type="text" id="orgName" class="form-control" placeholder="EduCare Foundation">
+                <input type="text" id="orgName" name="orgName" class="form-control" placeholder="EduCare Foundation">
+            </div>
+            <div class="form-group">
+                <label for="regNo">Registration Number</label>
+                <input type="text" id="regNo" name="regNo" class="form-control" placeholder="NGO12345">
+            </div>
+            <div class="form-group">
+                <label for="address">Address</label>
+                <input type="text" id="address" name="address" class="form-control" placeholder="123 MG Road">
+            </div>
+            <div class="form-group">
+                <label for="website">Website (Optional)</label>
+                <input type="url" id="website" name="website" class="form-control" placeholder="https://www.ngo.org">
+            </div>
+            <div class="form-group">
+                <label for="certificate">Government Certificate (PDF/Image)</label>
+                <input type="file" id="certificate" name="certificate" class="form-control">
+            </div>
+        </div>
+
+        <!-- Mentor specific fields -->
+        <div id="mentor-fields" class="hidden">
+            <div class="form-group">
+                <label for="linkedin">LinkedIn Profile</label>
+                <input type="url" id="linkedin" name="linkedin" class="form-control" placeholder="https://linkedin.com/in/user">
+            </div>
+            <div class="form-group">
+                <label for="organization">Organization/College Name</label>
+                <input type="text" id="organization" name="organization" class="form-control" placeholder="Tech Institute">
+            </div>
+            <div class="form-group">
+                <label for="experience">Experience (in years)</label>
+                <input type="number" id="experience" name="experience" class="form-control" placeholder="5">
+            </div>
+            <div class="form-group">
+                <label for="resume">Resume (PDF)</label>
+                <input type="file" id="resume" name="resume" class="form-control">
             </div>
         </div>
 
@@ -50,41 +91,71 @@
 <script>
     document.getElementById('role').addEventListener('change', (e) => {
         const ngoFields = document.getElementById('ngo-fields');
+        const mentorFields = document.getElementById('mentor-fields');
+        
+        ngoFields.classList.add('hidden');
+        mentorFields.classList.add('hidden');
+        
+        // Reset required fields
+        document.querySelectorAll('#ngo-fields input, #mentor-fields input').forEach(input => input.required = false);
+
         if (e.target.value === 'ngo') {
             ngoFields.classList.remove('hidden');
             document.getElementById('orgName').required = true;
-        } else {
-            ngoFields.classList.add('hidden');
-            document.getElementById('orgName').required = false;
+            document.getElementById('regNo').required = true;
+            document.getElementById('address').required = true;
+            document.getElementById('certificate').required = true;
+        } else if (e.target.value === 'mentor') {
+            mentorFields.classList.remove('hidden');
+            document.getElementById('linkedin').required = true;
+            document.getElementById('organization').required = true;
+            document.getElementById('experience').required = true;
+            document.getElementById('resume').required = true;
         }
     });
 
     document.getElementById('register-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = e.target.querySelector('button');
-        btn.disabled = true;
-        
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const role = document.getElementById('role').value;
-        const orgName = document.getElementById('orgName').value;
+        const formData = new FormData(e.target);
         
         const errorMsg = document.getElementById('error-msg');
         const successMsg = document.getElementById('success-msg');
         errorMsg.classList.add('hidden');
         successMsg.classList.add('hidden');
 
+        // Frontend validation
+        const password = formData.get('password');
+        const confirmPassword = formData.get('confirmPassword');
+        
+        if (password !== confirmPassword) {
+            errorMsg.innerText = "Passwords do not match";
+            errorMsg.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = "Registering...";
+
         try {
-            await api.post('/auth/register', { name, email, password, role, orgName });
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                body: formData // Correctly sends as multipart/form-data
+            });
+            const result = await response.json();
+
+            if (!response.ok) throw new Error(result.error || result.message || "Registration failed");
+
+            successMsg.innerText = result.message;
             successMsg.classList.remove('hidden');
             setTimeout(() => {
                 window.location.href = '/login';
-            }, 1500);
+            }, 3000);
         } catch (err) {
-            errorMsg.innerText = err.message || 'Registration failed. Try a different email.';
+            errorMsg.innerText = err.message;
             errorMsg.classList.remove('hidden');
             btn.disabled = false;
+            btn.innerText = "Sign Up";
         }
     });
 </script>

@@ -6,3 +6,6 @@ requests
 python-dotenv
 fastapi
 uvicorn
+bcrypt
+PyJWT
+Flask-Mail
