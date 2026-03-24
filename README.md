@@ -1,6 +1,6 @@
 # Community Platform - Flask Edition
 
-This is a newly converted version of the EduConnect platform, rebuilt using Python Flask, SQLite, and Vanilla JavaScript & HTML/CSS. Functionality remains identical to the original Node.js + React stack, but uses a much simpler, beginner-friendly architecture.
+This is a newly converted version of the EduConnect platform, rebuilt using Python Flask, SQLite, and Vanilla JavaScript & HTML/CSS. Functionality  uses a much simpler, beginner-friendly architecture.
 
 ## Tech Stack
 - **Backend:** Python + Flask
