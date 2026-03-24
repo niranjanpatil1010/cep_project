@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero" style="text-align: center; padding: 4rem 2rem; background: linear-gradient(135deg, #ebf4ff, #eef2ff); border-radius: 1rem; margin-bottom: 3rem;">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #1e3a8a;">Empower Communities Together</h1>
+    <p style="font-size: 1.25rem; max-width: 800px; margin: 0 auto; color: #475569;">Connect with NGOs, apply for scholarships, attend career guiding events, and easily donate or borrow books from community libraries.</p>
+    <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+        <a href="/register" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Join the Community</a>
+        <a href="/login" class="btn btn-outline" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Login</a>
+    </div>
+</div>
+
+<h2 class="section-title">Latest Scholarships</h2>
+<div class="card-grid" id="public-scholarships">
+    <p>Loading scholarships...</p>
+</div>
+
+<h2 class="section-title" style="margin-top: 4rem;">Upcoming Events</h2>
+<div class="card-grid" id="public-events">
+    <p>Loading events...</p>
+</div>
+
+<h2 class="section-title" style="margin-top: 4rem;">Partner NGOs</h2>
+<div class="card-grid" id="public-ngos">
+    <p>Loading NGOs...</p>
+</div>
+
+<h2 class="section-title" style="margin-top: 4rem;">Mentor Guidance</h2>
+<div class="card-grid" id="public-mentors">
+    <p>Loading mentor posts...</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.section-title { font-size: 2rem; color: #1e293b; margin-bottom: 1.5rem; text-align: center; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+.card { background: white; padding: 1.5rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+.card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+.badge { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem; background: #eff6ff; color: #1d4ed8; align-self: flex-start; }
+.badge-green { background: #d1fae5; color: #065f46; }
+.badge-purple { background: #f3e8ff; color: #6b21a8; }
+.btn { border-radius: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; text-align: center; cursor: pointer; text-decoration: none; }
+.btn-primary { background: #3b82f6; color: white; border: none; }
+.btn-primary:hover { background: #2563eb; }
+.btn-outline { background: transparent; color: #3b82f6; border: 1px solid #3b82f6; }
+.btn-outline:hover { background: #eff6ff; }
+.mt-auto { margin-top: auto; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Fetch Scholarships
+        const scholarshipsReq = await api.get('/public/scholarships');
+        const schContainer = document.getElementById('public-scholarships');
+        if(!scholarshipsReq || scholarshipsReq.length === 0) {
+            schContainer.innerHTML = '<p style="text-align: center; width: 100%;">No scholarships available right now.</p>';
+        } else {
+            schContainer.innerHTML = scholarshipsReq.slice(0, 3).map(s => `
+                <div class="card">
+                    <span class="badge">Deadline: ${new Date(s.deadline).toLocaleDateString()}</span>
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #1e293b;">${s.title}</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">${s.description.substring(0, 100)}...</p>
+                    <div style="font-size: 0.85rem; color: #475569; margin-bottom: 1.5rem;">
+                        <p style="margin: 0 0 0.5rem 0;"><strong>Eligibility:</strong> ${s.eligibility}</p>
+                        <p style="margin: 0;"><strong>Amount:</strong> ₹${s.amount}</p>
+                    </div>
+                    <a href="/login" class="btn btn-outline mt-auto w-full">Apply Now</a>
+                </div>
+            `).join('');
+        }
+
+        // Fetch Events
+        const eventsReq = await api.get('/public/events');
+        const evtContainer = document.getElementById('public-events');
+        if(!eventsReq || eventsReq.length === 0) {
+            evtContainer.innerHTML = '<p style="text-align: center; width: 100%;">No events available right now.</p>';
+        } else {
+            evtContainer.innerHTML = eventsReq.slice(0, 3).map(e => `
+                <div class="card">
+                    <span class="badge badge-green">Date: ${new Date(e.date).toLocaleDateString()}</span>
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #1e293b;">${e.title}</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">${e.description.substring(0, 80)}...</p>
+                    <p style="font-size: 0.85rem; color: #475569; margin-bottom: 1.5rem;"><strong>Location:</strong> ${e.location}</p>
+                    <a href="/login" class="btn btn-outline mt-auto w-full">Register to Attend</a>
+                </div>
+            `).join('');
+        }
+
+        // Fetch NGOs
+        const ngosReq = await api.get('/public/ngos');
+        const ngoContainer = document.getElementById('public-ngos');
+        if(!ngosReq || ngosReq.length === 0) {
+            ngoContainer.innerHTML = '<p style="text-align: center; width: 100%;">No partner NGOs listed.</p>';
+        } else {
+            ngoContainer.innerHTML = ngosReq.slice(0, 3).map(n => `
+                <div class="card" style="align-items: center; text-align: center;">
+                    <div style="width: 80px; height: 80px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; color: #64748b; margin-bottom: 1rem;">
+                        ${n.name.charAt(0)}
+                    </div>
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">${n.name}</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">${n.location}</p>
+                    <p style="font-size: 0.85rem; color: #475569;">${n.description ? n.description.substring(0, 60) + '...' : 'Partner NGO'}</p>
+                </div>
+            `).join('');
+        }
+
+        // Fetch Mentors
+        const mentorsReq = await api.get('/public/mentor-posts');
+        const mentorContainer = document.getElementById('public-mentors');
+        if(!mentorsReq || mentorsReq.length === 0) {
+            mentorContainer.innerHTML = '<p style="text-align: center; width: 100%;">No mentor guidance available.</p>';
+        } else {
+            mentorContainer.innerHTML = mentorsReq.slice(0, 3).map(m => `
+                <div class="card" style="border-left: 4px solid #8b5cf6;">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #1e293b;">${m.title}</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">${m.content.substring(0, 100)}...</p>
+                    <div style="margin-top: auto; display: flex; gap: 0.5rem;">
+                        ${m.tags ? m.tags.split(',').slice(0, 2).map(t => `<span class="badge badge-purple" style="margin-bottom: 0;">${t}</span>`).join('') : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+});
+</script>
+{% endblock %}

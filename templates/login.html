@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container mt-4">
+    <h2 class="text-center mb-4">Welcome Back</h2>
+    
+    <div id="error-msg" class="hidden" style="color: var(--btn-danger, #EF4444); background: #FEE2E2; padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem;"></div>
+
+    <form id="login-form">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+    </form>
+    
+    <p class="text-center mt-4" style="color: var(--gray-600);">
+        Don't have an account? <a href="/register" style="color: var(--primary); text-decoration: none; font-weight: 500;">Sign up</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button');
+    const oldText = btn.innerText;
+    btn.innerText = 'Logging in...';
+    btn.disabled = true;
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('error-msg');
+    errorMsg.classList.add('hidden');
+
+    try {
+        const res = await api.post('/auth/login', { email, password });
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+        
+        // Redirect based on role
+        if (res.user.role === 'student') window.location.href = '/student-dashboard';
+        else if (res.user.role === 'ngo') window.location.href = '/ngo-dashboard';
+        else if (res.user.role === 'mentor') window.location.href = '/mentor-dashboard';
+        else window.location.href = '/';
+        
+    } catch (err) {
+        errorMsg.innerText = err.message || 'Login failed. Please check credentials.';
+        errorMsg.classList.remove('hidden');
+    } finally {
+        btn.innerText = oldText;
+        btn.disabled = false;
+    }
+});
+</script>
+{% endblock %}

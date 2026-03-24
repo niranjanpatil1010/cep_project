@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Community Platform{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand">EduConnect</a>
+            <div class="nav-links" id="nav-links">
+                <a href="/">Home</a>
+                <!-- Dynamic based on auth -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 EduConnect Community. All rights reserved.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script>
+        // Setup navbar based on auth state
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            const navLinks = document.getElementById('nav-links');
+            
+            if (token && user) {
+                let dashboardUrl = '/';
+                if (user.role === 'student') dashboardUrl = '/student-dashboard';
+                if (user.role === 'ngo') dashboardUrl = '/ngo-dashboard';
+                if (user.role === 'mentor') dashboardUrl = '/mentor-dashboard';
+                
+                navLinks.innerHTML = `
+                    <a href="/">Home</a>
+                    <a href="${dashboardUrl}">Dashboard</a>
+                    <a href="#" id="logout-btn" class="btn btn-outline">Logout</a>
+                `;
+                
+                document.getElementById('logout-btn').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/login';
+                });
+            } else {
+                navLinks.innerHTML = `
+                    <a href="/">Home</a>
+                    <a href="/login" class="btn btn-outline">Login</a>
+                    <a href="/register" class="btn btn-primary">Sign Up</a>
+                `;
+            }
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
