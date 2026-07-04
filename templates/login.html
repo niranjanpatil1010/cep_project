@@ -1,71 +1,282 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="form-container mt-4">
-    <h2 class="text-center mb-4">Welcome Back</h2>
-    
-    <div id="error-msg" class="hidden" style="color: var(--btn-danger, #EF4444); background: #FEE2E2; padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem;"></div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduConnect Login</title>
 
-    <form id="login-form">
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
-        </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-    </form>
-    
-    <p class="text-center mt-4" style="color: var(--gray-600);">
-        Don't have an account? <a href="/register" style="color: var(--primary); text-decoration: none; font-weight: 500;">Sign up</a>
-    </p>
-</div>
-{% endblock %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-{% block scripts %}
-<script>
-document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = e.target.querySelector('button');
-    const oldText = btn.innerText;
-    btn.innerText = 'Logging in...';
-    btn.disabled = true;
-    
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const errorMsg = document.getElementById('error-msg');
-    errorMsg.classList.add('hidden');
-
-    try {
-        const res = await api.post('/auth/login', { email, password });
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
-        
-        // Redirect based on role
-        if (res.user.role === 'admin') window.location.href = '/admin-dashboard';
-        else if (res.user.role === 'student') window.location.href = '/student-dashboard';
-        else if (res.user.role === 'ngo') window.location.href = '/ngo-dashboard';
-        else if (res.user.role === 'mentor') window.location.href = '/mentor-dashboard';
-        else window.location.href = '/';
-        
-    } catch (err) {
-        let msg = err.message || 'Login failed. Please check credentials.';
-        if (err.message && err.message.includes('under verification')) {
-            errorMsg.textContent = err.message;
-        } else {
-            errorMsg.textContent = err.message || 'Login failed. Please check your credentials.';
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
         }
-        if (msg.includes('rejected')) { // This line was part of the original and seems to be kept.
-            msg = 'Your account was rejected. Please contact the administrator.';
+
+        body {
+            height: 100vh;
+            display: flex;
         }
-        errorMsg.innerText = msg;
-        errorMsg.classList.remove('hidden');
-    } finally {
-        btn.innerText = oldText;
-        btn.disabled = false;
-    }
-});
-</script>
-{% endblock %}
+
+        /* LEFT SIDE */
+        .left {
+            flex: 1;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)),
+                url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .left h1 {
+            font-size: 3rem;
+            font-weight: 600;
+        }
+
+        .left p {
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* RIGHT SIDE */
+        .right {
+            flex: 1;
+            background: #f4f8fb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* CARD */
+        .card {
+            width: 100%;
+            max-width: 380px;
+            background: white;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .card h2 {
+            font-size: 2rem;
+            color: #0ea5e9;
+        }
+
+        .card small {
+            color: #6b7280;
+        }
+
+        /* INPUT */
+        .input-group {
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .input-group i {
+            position: absolute;
+            top: 50%;
+            left: 12px;
+            transform: translateY(-50%);
+            color: #6b7280;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 12px 12px 38px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.2);
+        }
+
+        /* BUTTON */
+        button {
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #0ea5e9;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0284c7;
+        }
+
+        /* OR */
+        .or {
+            margin: 15px 0;
+            color: #9ca3af;
+        }
+
+        /* SOCIAL */
+        .social {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .social div {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            cursor: pointer;
+        }
+
+        .social i {
+            font-size: 18px;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #0ea5e9;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        /* ERROR */
+        #error-msg {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width:900px) {
+            .left {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LEFT -->
+    <div class="left">
+        <h1>EduConnect</h1>
+        <p>Connecting Students, Mentors & Opportunities 🌍</p>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+        <div class="card">
+
+            <h2>Welcome</h2>
+            <small>Login with Email</small>
+
+            <div id="error-msg"></div>
+
+            <form id="login-form">
+
+                <div class="input-group">
+                    <i class="fa fa-envelope"></i>
+                    <input type="email" id="email" placeholder="Enter email" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa fa-lock"></i>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+
+                <button type="submit">LOGIN</button>
+            </form>
+
+            <div class="or">OR</div>
+
+            <div class="social">
+                <div><i class="fab fa-google"></i></div>
+                <div><i class="fab fa-facebook"></i></div>
+                <div><i class="fab fa-apple"></i></div>
+            </div>
+
+            <div class="footer">
+                Don't have account? <a href="/register">Register Now</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('button');
+            const oldText = btn.innerText;
+            btn.innerText = 'Logging in...';
+            btn.disabled = true;
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-msg');
+
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const res = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(res.message || 'Login failed');
+                }
+                localStorage.setItem('token', res.token);
+                localStorage.setItem('user', JSON.stringify(res.user));
+
+                if (res.user.role === 'admin') window.location.href = '/admin-dashboard';
+                else if (res.user.role === 'student') window.location.href = '/student-dashboard';
+                else if (res.user.role === 'ngo') window.location.href = '/ngo-dashboard';
+                else if (res.user.role === 'mentor') window.location.href = '/mentor-dashboard';
+                else window.location.href = '/';
+
+            } catch (err) {
+                let msg = err.message || 'Login failed';
+                if (msg.includes('rejected')) {
+                    msg = 'Your account was rejected. Contact admin.';
+                }
+
+                errorMsg.innerText = msg;
+                errorMsg.style.display = 'block';
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+
+</body>
+
+</html>

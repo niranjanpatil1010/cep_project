@@ -1,162 +1,291 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduConnect Register</title>
 
-{% block content %}
-<div class="form-container mt-4" style="max-width: 600px;">
-    <h2 class="text-center mb-4">Create an Account</h2>
-    
-    <div id="error-msg" class="hidden" style="color: #EF4444; background: #FEE2E2; padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem;"></div>
-    <div id="success-msg" class="hidden" style="color: #10B981; background: #D1FAE5; padding: 0.75rem; border-radius: var(--radius); margin-bottom: 1rem;">Registration successful! Please verify your email.</div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    <form id="register-form" enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="role">Account Type</label>
-            <select id="role" name="role" class="form-control" required>
-                <option value="student">Student</option>
-                <option value="ngo">NGO</option>
-                <option value="mentor">Mentor</option>
-            </select>
-        </div>
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
 
-        <div class="form-group">
-            <label for="name">Full Name</label>
-            <input type="text" id="name" name="name" class="form-control" placeholder="John Doe" required>
-        </div>
-        <div class="form-group">
-            <label for="email">Email address</label>
-            <input type="email" id="email" name="email" class="form-control" placeholder="john@example.com" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" class="form-control" placeholder="Min 8 chars, Upper, Lower, Num, Special" required>
-        </div>
-        <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm your password" required>
-        </div>
-        
-        <!-- NGO specific fields -->
-        <div id="ngo-fields" class="hidden">
-            <div class="form-group">
-                <label for="orgName">Organization Name</label>
-                <input type="text" id="orgName" name="orgName" class="form-control" placeholder="EduCare Foundation">
-            </div>
-            <div class="form-group">
-                <label for="regNo">Registration Number</label>
-                <input type="text" id="regNo" name="regNo" class="form-control" placeholder="NGO12345">
-            </div>
-            <div class="form-group">
-                <label for="address">Address</label>
-                <input type="text" id="address" name="address" class="form-control" placeholder="123 MG Road">
-            </div>
-            <div class="form-group">
-                <label for="website">Website (Optional)</label>
-                <input type="url" id="website" name="website" class="form-control" placeholder="https://www.ngo.org">
-            </div>
-            <div class="form-group">
-                <label for="certificate">Government Certificate (PDF/Image)</label>
-                <input type="file" id="certificate" name="certificate" class="form-control">
-            </div>
-        </div>
+body{
+    display:flex;
+    height:100vh;
+}
 
-        <!-- Mentor specific fields -->
-        <div id="mentor-fields" class="hidden">
-            <div class="form-group">
-                <label for="linkedin">LinkedIn Profile</label>
-                <input type="url" id="linkedin" name="linkedin" class="form-control" placeholder="https://linkedin.com/in/user">
-            </div>
-            <div class="form-group">
-                <label for="organization">Organization/College Name</label>
-                <input type="text" id="organization" name="organization" class="form-control" placeholder="Tech Institute">
-            </div>
-            <div class="form-group">
-                <label for="experience">Experience (in years)</label>
-                <input type="number" id="experience" name="experience" class="form-control" placeholder="5">
-            </div>
-            <div class="form-group">
-                <label for="resume">Resume (PDF)</label>
-                <input type="file" id="resume" name="resume" class="form-control">
-            </div>
-        </div>
+/* LEFT SIDE */
+.left{
+    flex:1;
+    background:
+    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+    url('https://images.unsplash.com/photo-1523240795612-9a054b0db644');
+    background-size:cover;
+    background-position:center;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:40px;
+}
 
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign Up</button>
-    </form>
-    
-    <p class="text-center mt-4" style="color: var(--gray-600);">
-        Already have an account? <a href="/login" style="color: var(--primary); text-decoration: none; font-weight: 500;">Login</a>
-    </p>
+.left h1{
+    font-size:3rem;
+}
+
+.left p{
+    margin-top:10px;
+    opacity:0.9;
+}
+
+/* RIGHT */
+.right{
+    flex:1;
+    background:#f4f8fb;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    overflow-y:auto;
+}
+
+/* CARD */
+.card{
+    width:100%;
+    max-width:500px;
+    background:white;
+    padding:30px;
+    border-radius:16px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.1);
+}
+
+.card h2{
+    text-align:center;
+    color:#0ea5e9;
+}
+
+/* INPUT GROUP */
+.input-group{
+    margin-top:12px;
+}
+
+label{
+    font-size:14px;
+    color:#374151;
+}
+
+input, select{
+    width:100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #d1d5db;
+    margin-top:5px;
+}
+
+input:focus, select:focus{
+    border-color:#0ea5e9;
+    outline:none;
+    box-shadow:0 0 0 2px rgba(14,165,233,0.2);
+}
+
+/* BUTTON */
+button{
+    width:100%;
+    margin-top:20px;
+    padding:12px;
+    border:none;
+    border-radius:8px;
+    background:#0ea5e9;
+    color:white;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0284c7;
+}
+
+/* ALERTS */
+.msg{
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+    display:none;
+}
+
+.error{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.success{
+    background:#d1fae5;
+    color:#059669;
+}
+
+/* HIDDEN */
+.hidden{
+    display:none;
+}
+
+/* FOOTER */
+.footer{
+    text-align:center;
+    margin-top:15px;
+}
+
+.footer a{
+    color:#0ea5e9;
+    text-decoration:none;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+    .left{
+        display:none;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LEFT -->
+<div class="left">
+    <div>
+        <h1>Join EduConnect</h1>
+        <p>Empowering Students, Mentors & NGOs 🌍</p>
+    </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<!-- RIGHT -->
+<div class="right">
+<div class="card">
+
+<h2>Create Account</h2>
+
+<div id="error-msg" class="msg error"></div>
+<div id="success-msg" class="msg success">Registration successful!</div>
+
+<form id="register-form" enctype="multipart/form-data">
+
+<div class="input-group">
+<label>Account Type</label>
+<select id="role" name="role">
+    <option value="student">Student</option>
+    <option value="ngo">NGO</option>
+    <option value="mentor">Mentor</option>
+</select>
+</div>
+
+<div class="input-group">
+<label>Full Name</label>
+<input type="text" name="name" required>
+</div>
+
+<div class="input-group">
+<label>Email</label>
+<input type="email" name="email" required>
+</div>
+
+<div class="input-group">
+<label>Password</label>
+<input type="password" name="password" required>
+</div>
+
+<div class="input-group">
+<label>Confirm Password</label>
+<input type="password" name="confirmPassword" required>
+</div>
+
+<!-- NGO -->
+<div id="ngo-fields" class="hidden">
+    <div class="input-group"><input type="text" name="orgName" placeholder="Organization Name"></div>
+    <div class="input-group"><input type="text" name="regNo" placeholder="Registration Number"></div>
+    <div class="input-group"><input type="text" name="address" placeholder="Address"></div>
+    <div class="input-group"><input type="url" name="website" placeholder="Website"></div>
+    <div class="input-group"><input type="file" name="certificate"></div>
+</div>
+
+<!-- Mentor -->
+<div id="mentor-fields" class="hidden">
+    <div class="input-group"><input type="url" name="linkedin" placeholder="LinkedIn"></div>
+    <div class="input-group"><input type="text" name="organization" placeholder="Organization"></div>
+    <div class="input-group"><input type="number" name="experience" placeholder="Experience"></div>
+    <div class="input-group"><input type="file" name="resume"></div>
+</div>
+
+<button type="submit">Register</button>
+
+</form>
+
+<div class="footer">
+Already have account? <a href="/login">Login</a>
+</div>
+
+</div>
+</div>
+
 <script>
-    document.getElementById('role').addEventListener('change', (e) => {
-        const ngoFields = document.getElementById('ngo-fields');
-        const mentorFields = document.getElementById('mentor-fields');
-        
-        ngoFields.classList.add('hidden');
-        mentorFields.classList.add('hidden');
-        
-        // Reset required fields
-        document.querySelectorAll('#ngo-fields input, #mentor-fields input').forEach(input => input.required = false);
+const role = document.getElementById('role');
+const ngoFields = document.getElementById('ngo-fields');
+const mentorFields = document.getElementById('mentor-fields');
 
-        if (e.target.value === 'ngo') {
-            ngoFields.classList.remove('hidden');
-            document.getElementById('orgName').required = true;
-            document.getElementById('regNo').required = true;
-            document.getElementById('address').required = true;
-            document.getElementById('certificate').required = true;
-        } else if (e.target.value === 'mentor') {
-            mentorFields.classList.remove('hidden');
-            document.getElementById('linkedin').required = true;
-            document.getElementById('organization').required = true;
-            document.getElementById('experience').required = true;
-            document.getElementById('resume').required = true;
-        }
-    });
+role.addEventListener('change', () => {
+    ngoFields.classList.add('hidden');
+    mentorFields.classList.add('hidden');
 
-    document.getElementById('register-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector('button');
-        const formData = new FormData(e.target);
-        
-        const errorMsg = document.getElementById('error-msg');
-        const successMsg = document.getElementById('success-msg');
-        errorMsg.classList.add('hidden');
-        successMsg.classList.add('hidden');
+    if(role.value === 'ngo') ngoFields.classList.remove('hidden');
+    if(role.value === 'mentor') mentorFields.classList.remove('hidden');
+});
 
-        // Frontend validation
-        const password = formData.get('password');
-        const confirmPassword = formData.get('confirmPassword');
-        
-        if (password !== confirmPassword) {
-            errorMsg.innerText = "Passwords do not match";
-            errorMsg.classList.remove('hidden');
-            return;
-        }
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        btn.disabled = true;
-        btn.innerText = "Registering...";
+    const btn = e.target.querySelector('button');
+    const formData = new FormData(e.target);
 
-        try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                body: formData // Correctly sends as multipart/form-data
-            });
-            const result = await response.json();
+    const errorMsg = document.getElementById('error-msg');
+    const successMsg = document.getElementById('success-msg');
 
-            if (!response.ok) throw new Error(result.error || result.message || "Registration failed");
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
 
-            successMsg.innerText = result.message;
-            successMsg.classList.remove('hidden');
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 3000);
-        } catch (err) {
-            errorMsg.innerText = err.message;
-            errorMsg.classList.remove('hidden');
-            btn.disabled = false;
-            btn.innerText = "Sign Up";
-        }
-    });
+    if(formData.get('password') !== formData.get('confirmPassword')){
+        errorMsg.innerText = "Passwords do not match";
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    btn.innerText = "Registering...";
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/register', {
+            method:'POST',
+            body:formData
+        });
+
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.message);
+
+        successMsg.style.display = 'block';
+
+        setTimeout(()=> window.location.href='/login',2000);
+
+    } catch(err){
+        errorMsg.innerText = err.message;
+        errorMsg.style.display = 'block';
+        btn.disabled = false;
+        btn.innerText = "Register";
+    }
+});
 </script>
-{% endblock %}
+
+</body>
+</html>

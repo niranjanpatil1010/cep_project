@@ -5,8 +5,8 @@
     <h1 style="font-size: 3rem; margin-bottom: 1rem; color: #1e3a8a;">Empower Communities Together</h1>
     <p style="font-size: 1.25rem; max-width: 800px; margin: 0 auto; color: #475569;">Connect with NGOs, apply for scholarships, attend career guiding events, and easily donate or borrow books from community libraries.</p>
     <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
-        <a href="/register" class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Join the Community</a>
-        <a href="/login" class="btn btn-outline" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Login</a>
+        <a  class="btn btn-primary" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Join the Community</a>
+       
     </div>
 </div>
 
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <p style="margin: 0 0 0.5rem 0;"><strong>Eligibility:</strong> ${s.eligibility}</p>
                         <p style="margin: 0;"><strong>Amount:</strong> ₹${s.amount}</p>
                     </div>
-                    <a href="/login" class="btn btn-outline mt-auto w-full">Apply Now</a>
+                    <a  href="student-dashboard" class="btn btn-outline mt-auto w-full">Apply Now</a>
                 </div>
             `).join('');
         }
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #1e293b;">${e.title}</h3>
                     <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1rem;">${e.description.substring(0, 80)}...</p>
                     <p style="font-size: 0.85rem; color: #475569; margin-bottom: 1.5rem;"><strong>Location:</strong> ${e.location}</p>
-                    <a href="/login" class="btn btn-outline mt-auto w-full">Register to Attend</a>
+                    <a  href="student-dashboard" class="btn btn-outline mt-auto w-full">Register to Attend</a>
                 </div>
             `).join('');
         }

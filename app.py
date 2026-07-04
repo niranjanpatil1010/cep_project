@@ -37,6 +37,9 @@ app.register_blueprint(admin_bp, url_prefix='/api/admin')
 # --- Frontend Routes (HTML view) ---
 @app.route('/')
 def index():
+    return render_template('login.html')
+@app.route('/home')
+def inde():
     return render_template('index.html')
 
 @app.route('/login')
